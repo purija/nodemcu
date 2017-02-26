@@ -19,7 +19,7 @@ Device Device::getNodeMcu(){
     Device node;
     node.auth = "blynk authentication token";
     node.ssid = "wifi ssid";
-    node.pass = "wifi password" ;
+    node.pass = "wifi password";
 
     return node;
 }
