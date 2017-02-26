@@ -12,7 +12,6 @@ String readPinValueAsString(const String& pin);
 //bool isAppConnected();
 void sendPushNotification(const String& message);
 void sendMail(const String& to, const String& title, const String& subject);
-//void sendEmail();
 //void pinHistoryData();
 //std::string queryApi();
 

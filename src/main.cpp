@@ -23,26 +23,60 @@ void setup()
   //sendMail("mail@reciever.com", "setup nodemcu", "nodemcu was initialized");
 }
 
-void handleDht(const String &virtualTemp, const String &virtualHumidity){
-    float humidity = getHumidity();
-    Serial.print("humidity: ");
-    Serial.println(humidity);
-    float temperature = getTemperature();
-    Serial.print("temperature: ");
-    Serial.println(temperature);
+void handleDht(const JsonObject &virtualPins){
+    String humidity = virtualPins["humidity"];
+    float humidityValue = getHumidity();
+    
+    String temperature = virtualPins["temperature"];
+    float temperatureValue = getTemperature();
 
-    writePinValue(virtualHumidity, humidity);
-    writePinValue(virtualTemp, temperature);
+    writePinValue(humidity, humidityValue);
+    writePinValue(temperature, temperatureValue);
+
+    String maxTemperature = virtualPins["maxTemperature"];
+    String minTemperature = virtualPins["minTemperature"];
+    String maxHumidity = virtualPins["maxHumidity"];
+    String minHumidity = virtualPins["minHumidity"];
+
+    String maxTemperatureValue = readPinValueAsString(maxTemperature);
+    String minTemperatureValue = readPinValueAsString(minTemperature);
+    String maxHumidityValue = readPinValueAsString(maxHumidity);
+    String minHumidityValue = readPinValueAsString(minHumidity);
+
+    String dataSet = "max Temp " + maxTemperatureValue + " °C" + "\n"
+    + "min Temp " + minTemperatureValue + " °C" + "\n"
+    + "max humidity " + maxHumidityValue + " %" + "\n"
+    + "min humidity " + minHumidityValue + " %" + "\n"
+    + "\n"
+    + "temperature value " + temperatureValue + " °C"  +"\n"
+    + "humidity value " + humidityValue + " %";
+
+    String reciever = "mail@reciever.com";
+    if (temperatureValue > maxTemperatureValue.toInt()){
+        sendMail(reciever, dataSet, "temperature maximum exceeded");
+    }
+
+    if (temperatureValue < minTemperatureValue.toInt()){
+        sendMail(reciever, dataSet, "temperature minimum exceeded");
+    }
+
+    if (humidityValue > maxHumidityValue.toInt()){
+        sendMail(reciever, dataSet, "humidity maxiumum exceeded");
+    }
+
+    if (humidityValue < minHumidityValue.toInt()){
+        sendMail(reciever, dataSet, "humidity maxiumum exceeded");
+    }
 }
 
-void handlePin5(){
-  String virtual5 = readPinValueAsString("V5");
-    if (virtual5.toInt() == 0){
+void handlePin10(){
+    String virtual10 = readPinValueAsString("V10");
+    if (virtual10.toInt() == 0){
         Serial.println("write LOW");
         digitalWrite(ledPin, LOW);
     }
 
-    if (virtual5.toInt() == 1){
+    if (virtual10.toInt() == 1){
         Serial.println("write HIGH");
         digitalWrite(ledPin, HIGH);
     }
@@ -59,11 +93,20 @@ void handleDeepSleep(){
 }
 
 void loop() {
-  handleDht("V4", "V3");
-  handlePin5();
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& dhtPins = jsonBuffer.createObject();
+    dhtPins["humidity"] = "V1";
+    dhtPins["temperature"] = "V2";
+    dhtPins["maxTemperature"] = "V3";
+    dhtPins["minTemperature"] = "V4";
+    dhtPins["maxHumidity"] = "V5";
+    dhtPins["minHumidity"] = "V6";
 
-  //sendPushNotification("hey notification");
-  handleDeepSleep();
+    handleDht(dhtPins);
 
-  delay(5000L);
+    //debug control
+    handlePin10();
+
+    //sendPushNotification("hey notification");
+    handleDeepSleep();
 }

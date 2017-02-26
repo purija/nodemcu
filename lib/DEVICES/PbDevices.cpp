@@ -17,7 +17,7 @@ void Device::setDevice(String auth_m, String ssid_m, String pass_m) {
 
 Device Device::getNodeMcu(){
     Device node;
-    node.auth = "authentication token";
+    node.auth = "blynk authentication token";
     node.ssid = "wifi ssid";
     node.pass = "wifi password" ;
 
