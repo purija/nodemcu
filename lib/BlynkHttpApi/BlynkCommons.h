@@ -6,6 +6,6 @@
 
 void handleDeepSleep(const String& virtualPin);
 void readVirtualWriteDigital(const String& virutalPin, const int& digitalPin);
-void handleDht(const JsonObject &virtualPins);
+String handleDht(const JsonObject &virtualPins);
 
 #endif

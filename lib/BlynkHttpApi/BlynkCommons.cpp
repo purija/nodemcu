@@ -26,7 +26,7 @@ void readVirtualWriteDigital(const String& virutalPin, const int& digitalPin){
     }
 }
 
-void handleDht(const JsonObject &virtualPins){
+String handleDht(const JsonObject &virtualPins){
     String humidity = virtualPins["humidity"];
     float humidityValue = getHumidity();
 
@@ -46,15 +46,15 @@ void handleDht(const JsonObject &virtualPins){
     String maxHumidityValue = readPinValueAsString(maxHumidity);
     String minHumidityValue = readPinValueAsString(minHumidity);
 
-    String dataSet = "max Temp " + maxTemperatureValue + " °C" + "\n"
-    + "min Temp " + minTemperatureValue + " °C" + "\n"
+    String dataSet = "max Temp " + maxTemperatureValue + " C" + "\n"
+    + "min Temp " + minTemperatureValue + " C" + "\n"
     + "max humidity " + maxHumidityValue + " %" + "\n"
     + "min humidity " + minHumidityValue + " %" + "\n"
     + "\n"
-    + "temperature value " + temperatureValue + " °C"  +"\n"
-    + "humidity value " + humidityValue + " %";
+    + "temperature " + temperatureValue + " C"  +"\n"
+    + "humidity " + humidityValue + " %";
 
-    String reciever = "mail@reciever.com";
+    String reciever = "reciever@mail.com";
     if (temperatureValue > maxTemperatureValue.toInt()){
         sendMail(reciever, dataSet, "temperature maximum exceeded");
         sendPushNotification("temperature maximum exceeded");
@@ -74,4 +74,6 @@ void handleDht(const JsonObject &virtualPins){
         sendMail(reciever, dataSet, "humidity minimum exceeded");
         sendPushNotification("humidity minimum exceeded");
     }
+
+    return dataSet;
 }

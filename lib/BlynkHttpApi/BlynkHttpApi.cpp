@@ -28,8 +28,7 @@ WiFiClient client;
 Device node;
 
 // Start the WiFi connection
-void connectNetwork()
-{
+void connectNetwork(){
   Serial.print("Connecting to ");
   Serial.println();
 
@@ -59,8 +58,7 @@ void connectNetwork()
 
 bool httpRequest(const String& method,
                  const String& request,
-                 String&       response)
-{
+                 String&       response){
   Serial.print(F("Connecting to "));
   Serial.print(host);
   Serial.print(":");

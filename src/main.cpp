@@ -6,6 +6,13 @@
 #include <ArduinoJson.h>
 #include <BlynkCommons.h>
 
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <PbSsd1306.h>
+
+
 //digital debug pin
 int ledPin = 0;
 
@@ -22,6 +29,8 @@ void setup()
   //initialize debug pin
   pinMode(ledPin, OUTPUT);
 
+  initDisplay();
+
   //sendPushNotification("hey notification");
   //sendMail("mail@reciever.com", "setup nodemcu", "nodemcu was initialized");
 }
@@ -37,11 +46,11 @@ void loop() {
     dhtPins["maxHumidity"] = "V5";
     dhtPins["minHumidity"] = "V6";
 
-    handleDht(dhtPins);
+    String dataSet = handleDht(dhtPins);
+    printText(dataSet);
 
     //debug control
     readVirtualWriteDigital("V10", ledPin);
-
 
     handleDeepSleep("V0");
 }
