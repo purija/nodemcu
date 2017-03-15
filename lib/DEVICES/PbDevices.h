@@ -2,7 +2,6 @@
 #define PBDEVICES_H
 
 #include <ESP8266WiFi.h>
-#include <string>
 
 class Device{
 private:

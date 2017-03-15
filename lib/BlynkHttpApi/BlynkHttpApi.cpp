@@ -16,7 +16,7 @@
  *   Value Display widget on V2
  *
  **************************************************************/
-#include <ESP8266WiFi.h>
+//#include <ESP8266WiFi.h>
 #include <PbDevices.h>
 #include <ArduinoJson.h>
 
@@ -83,7 +83,7 @@ bool httpRequest(const String& method,
     client.println();
   }
 
-  //Serial.println("Waiting response");
+  Serial.println("Waiting response");
   int timeout = millis() + 5000;
   while (client.available() == 0) {
     if (timeout - millis() < 0) {
@@ -93,7 +93,7 @@ bool httpRequest(const String& method,
     }
   }
 
-  //Serial.println("Reading response");
+  Serial.println("Reading response");
   int contentLength = -1;
   while (client.available()) {
     String line = client.readStringUntil('\n');
@@ -106,7 +106,7 @@ bool httpRequest(const String& method,
     }
   }
 
-  //Serial.println("Reading response body");
+  Serial.println("Reading response body");
   response = "";
   response.reserve(contentLength + 1);
   while (response.length() < contentLength && client.connected()) {
@@ -146,6 +146,7 @@ String readPinValueAsString(const String& pin){
     DynamicJsonBuffer jsonBuffer;
     JsonArray& virtualArray = jsonBuffer.parseArray(readPinValue(pin));
     String virtual5 = virtualArray[0];
+
     return virtual5;
 }
 
