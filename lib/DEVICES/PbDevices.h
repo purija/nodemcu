@@ -13,7 +13,8 @@ public:
     Device();
 
     void setDevice(String auth, String ssid, String pass);
-    Device getNodeMcu();
+    Device getNode1();
+    Device getNode2();
 
     String getAuth() { return auth; }
     String getSsid() { return ssid; }

@@ -43,26 +43,36 @@
 #include <Adafruit_SSD1306.h>
 #include <PbSsd1306.h>
 #include <SimpleTimer.h>
+#include <PbDevices.h>
 
 SimpleTimer timer;
-
+Device deviceNode;
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "auth";
+//char auth[] = Device().getNode2().auth.c_str();
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-char ssid[] = "ssid";
-char pass[] = "pass";
+//char ssid[] = Device().getNode2().ssid.c_str();
+//char pass[] = Device().getNode2().pass.c_str();
 
 int sleepDuration = 0;
+
+int tempNotified = -1;
 int maxTemperature = -1;
 int minTemperature = -1;
+
+int humidityNotified = -1;
 int maxHumidity = -1;
 int minHumidity = -1;
+
 float temperature = 0;
 float humidity = 0;
+
 int dhtFailRate = 0;
+
+int devPin = 12;
+int devValue = -1;
 
 BLYNK_WRITE(V0){
   sleepDuration = param.asInt();
@@ -82,6 +92,10 @@ BLYNK_WRITE(V5){
 
 BLYNK_WRITE(V6){
   minHumidity = param.asInt();
+}
+
+BLYNK_WRITE(V7){
+  devValue = param.asInt();
 }
 
 void handleDeepSleep(void){
@@ -122,32 +136,59 @@ String handleDht(void){
     + "humidity " + String(humidity) + " %";
 
 
+    if (temperature < maxTemperature && tempNotified == maxTemperature){
+        tempNotified = -1;
+    }
+
     if (maxTemperature != -1 && temperature > maxTemperature){
-        Blynk.email(reciever.c_str(), "temperature maximum exceeded", dataSet);
-        Blynk.notify("temperature maximum exceeded");
+        if (tempNotified != maxTemperature){
+            Blynk.email(reciever.c_str(), "temperature maximum exceeded", dataSet);
+            Blynk.notify("temperature maximum exceeded");
+            tempNotified = maxTemperature;
+        }
+    }
+
+    if (temperature > minTemperature && tempNotified == minTemperature){
+        tempNotified = -1;
     }
 
     if (minTemperature != -1 && temperature < minTemperature){
-        Blynk.email(reciever.c_str(), "temperature minimum exceeded", dataSet);
-        Blynk.notify("temperature minimum exceeded");
+        if (tempNotified != minTemperature){
+            Blynk.email(reciever.c_str(), "temperature minimum exceeded", dataSet);
+            Blynk.notify("temperature minimum exceeded");
+            tempNotified = minTemperature;
+        }
+    }
+
+    if (humidity < maxHumidity && humidityNotified == maxHumidity){
+        humidityNotified = -1;
     }
 
     if (maxHumidity != -1 && humidity > maxHumidity){
-        Blynk.email(reciever.c_str(), "humidity maxiumum exceeded", dataSet);
-        Blynk.notify("humidity maxiumum exceeded");
+        if (humidityNotified != maxHumidity){
+            Blynk.email(reciever.c_str(), "humidity maxiumum exceeded", dataSet);
+            Blynk.notify("humidity maxiumum exceeded");
+            humidityNotified = maxHumidity;
+        }
     }
 
-    if (minHumidity != -1 &&humidity < minHumidity){
-        Blynk.email(reciever.c_str(), "humidity minimum exceeded", dataSet);
-        Blynk.notify("humidity minimum exceeded");
+    if (humidity > minHumidity && humidityNotified == minHumidity){
+        humidityNotified = -1;
+    }
+
+    if (minHumidity != -1 && humidity < minHumidity){
+        if (humidityNotified != minHumidity){
+            Blynk.email(reciever.c_str(), "humidity minimum exceeded", dataSet);
+            Blynk.notify("humidity minimum exceeded");
+            humidityNotified = minHumidity;
+        }
     }
 
     return dataSet;
 }
 
 void dhtEvent(){
-    printText(handleDht());
-    //handleDeepSleep();
+    handleDht();
 }
 
 void healthCheckEvent(){
@@ -163,17 +204,30 @@ void healthCheckEvent(){
     }
 }
 
+void relayEvent(){
+    if (devValue == 1){
+        digitalWrite(devPin, HIGH);
+    }
+    if (devValue == 0){
+        digitalWrite(devPin, LOW);
+    }
+}
+
 void setup(){
   Serial.begin(9600);
-  Blynk.begin(auth, ssid, pass);
-  initDisplay();
+  deviceNode = deviceNode.getNode2();
+  Blynk.begin(deviceNode.getAuth().c_str(), deviceNode.getSsid().c_str(), deviceNode.getPass().c_str());
+
   initDhtSensor();
   timer.setInterval(500L, dhtEvent);
   timer.setInterval(500L, healthCheckEvent);
+
+  //dev
+  pinMode(devPin, OUTPUT);
+  timer.setInterval(500L, relayEvent);
 }
 
 void loop(){
   Blynk.run();
   timer.run();
-  //Try to execute Blynk.run only in loop
 }
