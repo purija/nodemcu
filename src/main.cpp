@@ -196,7 +196,7 @@ void healthCheckEvent(){
         String message = "deepsleep triggerd - reason - heap almost exceeded ";
         Blynk.notify(message + ESP.getFreeHeap());
 
-        String reciever = "purija@googlemail.com";
+        String reciever = "reciever@mail.com";
         Blynk.email(reciever.c_str(), message, message + ESP.getFreeHeap());
 
         Blynk.disconnect();
